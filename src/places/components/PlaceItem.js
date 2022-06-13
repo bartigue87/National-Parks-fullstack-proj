@@ -6,8 +6,12 @@ import Button from "../../shared/components/FormElements/Button";
 import Modal from "../../shared/components/UIElements/Modal";
 import Map from "./Map";
 import { AuthContext } from "../../shared/components/context/auth-context";
+import { useHttpClient } from "../../shared/components/hooks/http-hook";
+import ErrorModal from "../../shared/components/UIElements/ErrorModal";
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 
 const PlaceItem = (props) => {
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const auth = useContext(AuthContext);
   const [showMap, setShowMap] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -24,12 +28,19 @@ const PlaceItem = (props) => {
     });
   }
 
-  function confirmDelete() {
+  async function confirmDelete() {
     toggleDeleteModal();
-    console.log("deleted");
+    try {
+      await sendRequest(
+        `http://localhost:3000/api/places/${props.id}`,
+        "DELETE"
+      );
+      props.onDelete(props.id);
+    } catch (err) {}
   }
   return (
     <>
+      <ErrorModal error={error} onClear={clearError} />
       <Modal
         show={showMap}
         onCancel={toggleMap}
@@ -62,6 +73,7 @@ const PlaceItem = (props) => {
       </Modal>
       <li className="place-item">
         <Card className="place-item__content">
+          {isLoading && <LoadingSpinner asOverlay />}
           <div className="place-item__image">
             <img src={props.image} alt={props.title} />
           </div>
@@ -74,10 +86,10 @@ const PlaceItem = (props) => {
             <Button inverse onClick={toggleMap}>
               VIEW ON MAP
             </Button>
-            {auth.isLoggedIn && (
+            {auth.userId === props.creatorId && (
               <Button to={`/places/${props.id}`}>EDIT</Button>
             )}
-            {auth.isLoggedIn && (
+            {auth.userId === creatorId && (
               <Button danger onClick={toggleDeleteModal}>
                 DELETE
               </Button>
