@@ -5,6 +5,8 @@ import { useForm } from "../../shared/components/hooks/form-hook";
 import ErrorModal from "../../shared/components/UIElements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import { useHttpClient } from "../../shared/components/hooks/http-hook";
+import ImageUpload from "../../shared/components/FormElements/ImageUpload";
+import AvatarImage from "../../images/avatar.jpeg";
 import {
   VALIDATOR_EMAIL,
   VALIDATOR_REQUIRE,
@@ -39,6 +41,8 @@ export default function Auth() {
 
   async function authSubmitHandler(event) {
     event.preventDefault();
+
+    console.log(formState.inputs);
     if (isLoginMode) {
       try {
         const responseData = await sendRequest(
@@ -78,7 +82,7 @@ export default function Auth() {
   function switchModeHandler() {
     if (!isLoginMode) {
       setFormData(
-        { ...formState.inputs, name: undefined },
+        { ...formState.inputs, name: undefined, image: undefined },
         formState.inputs.email.isValid && formState.inputs.password.isValid
       );
     } else {
@@ -88,6 +92,10 @@ export default function Auth() {
           name: {
             value: "",
             isValid: false,
+          },
+          image: {
+            value: AvatarImage,
+            isValid: true,
           },
         },
         false
@@ -114,6 +122,9 @@ export default function Auth() {
               errorText="Please enter a valid username"
               validators={[VALIDATOR_REQUIRE()]}
             />
+          )}
+          {!isLoginMode && (
+            <ImageUpload center id="image" onInput={inputHandler} />
           )}
           <Input
             id="email"
