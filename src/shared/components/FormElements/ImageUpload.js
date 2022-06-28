@@ -54,7 +54,9 @@ export default function ImageUpload(props) {
           <div className="image-upload__preview">
             {previewUrl && <img src={previewUrl} alt="Preview" />}
             {!previewUrl && (
-              <p>Select a profile picture. (can do this later if you wish)</p>
+              <div>
+                <p>Select a profile picture.</p>
+              </div>
             )}
           </div>
           <Button type="button" onClick={pickImageHandler}>
